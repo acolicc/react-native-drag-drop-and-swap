@@ -198,7 +198,7 @@ class DragContainer extends React.Component {
     });
   }
 
-  onDrag(ref, children, data) {
+  onDrag(ref, children, data, dragOn) {
     ref.measure((...args) => {
       if (this._listener) this.state.location.removeListener(this._listener);
       let location = new Animated.ValueXY();
@@ -219,18 +219,20 @@ class DragContainer extends React.Component {
             y: args[5],
             width: args[2],
             height: args[3]
-          }
+          },
+          dragOn
         }
       }, () => {
-        // if (this.props.onDragStart) this.props.onDragStart(this.state.draggingComponent);
+        if (dragOn == 'onLongPress' && this.props.onDragStart) this.props.onDragStart(this.state.draggingComponent);
       })
     });
   }
 
   render() {
+    const shouldShowModal = this.state.didBeginDragging || (this.state.draggingComponent && this.state.draggingComponent.dragOn == 'onLongPress');
     return <View style={[{ flex: 1 }, this.props.style]} onLayout={e => this.containerLayout = e.nativeEvent.layout} {...this._panResponder.panHandlers}>
       {this.props.children}
-      {this.state.draggingComponent && this.state.didBeginDragging ? <DragModal content={this.state.draggingComponent} location={this.state.location} drop={this._handleDrop} /> : null}
+      {this.state.draggingComponent && shouldShowModal ? <DragModal content={this.state.draggingComponent} location={this.state.location} drop={this._handleDrop} /> : null}
     </View>;
   }
 }
